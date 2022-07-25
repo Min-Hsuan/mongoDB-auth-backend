@@ -5,19 +5,26 @@ const dbConnent = require('./db/dbConnect')
 const bcrypt = require('bcrypt')
 const User = require('./db/userModel')
 const jwt = require('jsonwebtoken')
-
+const auth = require('./auth')
 // execute database connection
 dbConnent()
 // body parser configuration
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.get('/', (request, response, next) => {
-  response.json({ message: 'Hey! This is your server response!' })
+app.get('/', (req, res, next) => {
+  res.json({ message: 'Hey! This is your server response!' })
   next()
 })
 // register endpoint
 app.post('/register', async (req, res) => {
+  // check if email exists
+  const userCheck = await User.findOne({ email: req.body.email })
+  if (userCheck) {
+    return res.status(400).send({
+      message: 'This email already existed'
+    })
+  }
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
     // create a new user instance and collect the data
@@ -86,5 +93,14 @@ app.post('/login', async (req, res) => {
       error
     })
   }
+})
+
+// free endpoint
+app.get('/free-endpoint', (req, res) => {
+  res.json({ message: 'You are free to access me anytime' })
+})
+// authentication endpoint
+app.get('/auth-endpoint', auth, (req, res) => {
+  res.json({ message: 'You are autorized to access me', ...req.user })
 })
 module.exports = app
