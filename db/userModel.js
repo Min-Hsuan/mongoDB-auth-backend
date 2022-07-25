@@ -11,4 +11,4 @@ const UserSchema = new mongoose.Schema({
     unique: false
   }
 })
-module.exports = mongoose.model.users || mongoose.model('Users',UserSchema)
+module.exports = mongoose.model.users || mongoose.model('Users', UserSchema)
